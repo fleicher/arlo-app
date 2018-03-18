@@ -29,8 +29,12 @@ import android.os.NetworkOnMainThreadException;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.graphics.Bitmap;
@@ -92,6 +96,37 @@ public class MainActivity extends AppCompatActivity {
         // [END handle_data_extras]
         sentValues.put("image", "http://res.cloudinary.com/arlo/image/upload/v1521292110/last.png");
         */
+
+        final SharedPreferences soundPrefs = getSharedPreferences("sound_prefs", 0);
+        Spinner soundDropdownFront = findViewById(R.id.spinnerFront);
+        Spinner soundDropdownRest = findViewById(R.id.spinnerRest);
+        String[] items = new String[]{"song", "knock", "vibrate", "silent", "ignore"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
+        soundDropdownFront.setAdapter(adapter);
+        soundDropdownRest.setAdapter(adapter);
+        soundDropdownFront.setSelection(getIndex(soundDropdownFront, soundPrefs.getString("rest", "knock")));
+        soundDropdownFront.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                SharedPreferences.Editor soundPrefsEditor = soundPrefs.edit();
+                soundPrefsEditor.putString("front", (String) parent.getItemAtPosition(position));
+                soundPrefsEditor.apply();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+        soundDropdownRest.setSelection(getIndex(soundDropdownRest, soundPrefs.getString("rest", "knock")));
+        soundDropdownRest.setOnItemSelectedListener(new OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                SharedPreferences.Editor soundPrefsEditor = soundPrefs.edit();
+                soundPrefsEditor.putString("rest", (String) parent.getItemAtPosition(position));
+                soundPrefsEditor.apply();
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+
 
         final SharedPreferences sharedPrefs = getSharedPreferences("my_prefs", 0);
         final Button videoURLButton = findViewById(R.id.videoButton);
@@ -162,6 +197,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    private int getIndex(Spinner spinner, String myString)
+    {
+        int index = 0;
+
+        for (int i=0;i<spinner.getCount();i++){
+            if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(myString)){
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
+
     private class DownloadInfo extends AsyncTask<Void, Void, Bitmap>{
 
         @Override

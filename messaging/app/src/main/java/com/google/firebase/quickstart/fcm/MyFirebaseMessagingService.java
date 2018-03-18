@@ -129,9 +129,18 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
         editor.putLong("stamp", System.currentTimeMillis());
         editor.apply();
-
+        SharedPreferences soundPrefs = getSharedPreferences("sound_prefs", 0);
         Log.d(TAG, "Short lived task is done.");
-        sendNotification(data.get("name"));
+
+        String soundKey, vibrationKey;
+        if (data.get("name").equals("Eingang")) {
+            soundKey = "front";
+        }else {
+            soundKey = "rest";
+        }
+        String soundType = soundPrefs.getString(soundKey,"knock");
+
+        sendNotification(data.get("name"), soundType);
         System.out.println("h" + sharedPrefs.getString("name", "nothing"));
     }
 
@@ -140,18 +149,21 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
      *
      * @param messageBody FCM message body received.
      */
-    private void sendNotification(String messageBody) {
+    private void sendNotification(String messageBody, String soundType) {
         Log.d(TAG, "call to sendNotification");
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
-
-        String channelId = getString(R.string.default_notification_channel_id);
         Uri defaultSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         Uri customSoundUri = Uri.parse("android.resource://com.google.firebase.quickstart.fcm/" + R.raw.katchi);
-        long[] pattern = {0,100,200,300,400,500,500,500,500};
 
+        String channelId = getString(R.string.default_notification_channel_id);
+
+
+
+        long[] vibrateLong = {0,100,200,300,400,500,500,500,500};
+        long[] vibrateShort = {100, 100};
 
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, channelId)
@@ -159,10 +171,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 .setContentTitle("Suspicious Movement Detected")
                 .setContentText(messageBody)
                 .setAutoCancel(true)
-                .setSound(customSoundUri)
                 .setContentIntent(pendingIntent)
-                .setLights(Color.BLUE, 500, 500)
-                .setVibrate(pattern);
+                .setLights(Color.BLUE, 500, 500);
+
+        switch (soundType){
+            case "song": notificationBuilder.setSound(customSoundUri).setVibrate(vibrateLong); break;
+            case "knock": notificationBuilder.setSound(defaultSoundUri).setVibrate(vibrateLong); break;
+            case "vibrate": notificationBuilder.setVibrate(vibrateShort); break;
+            case "silent": break;
+            case "ignore": return;
+            default: System.out.println("invalid sound");
+        }
 
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
