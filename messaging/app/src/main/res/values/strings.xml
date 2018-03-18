@@ -1,12 +1,11 @@
 <resources>
-    <string name="app_name">Firebase Cloud Messaging</string>
-    <string name="quickstart_message">Click the SUBSCRIBE TO NEWS button below to subscribe to the
-        news topic. Messages sent to the news topic will be received. The LOG TOKEN button logs the
-        InstanceID token to logcat.</string>
-    <string name="subscribe_to_news">Subscribe To News</string>
-    <string name="log_token">Log Token</string>
+    <string name="app_name">Arlo Quaker</string>
+    <string name="video_info">You are safe</string>
+    <string name="subscribe_to_news">Register Device</string>
+    <string name="visit_url">No Video</string>
+    <string name="delete_video">False Alarm</string>
 
-    <string name="msg_subscribed">Subscribed to news topic</string>
+    <string name="msg_subscribed">Device is now receiving notifications</string>
     <string name="msg_token_fmt" translatable="false">InstanceID Token: %s</string>
 
     <string name="default_notification_channel_id" translatable="false">fcm_default_channel</string>
